@@ -1,0 +1,240 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+
+    <style type="text/css">
+      html,
+      body,
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: url("./ustwo.jpg");
+        background-size: contain;
+        background-position: center;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+      }
+
+      .bg {
+        position: absolute;
+        top: 0;
+        background: url("./ustwo.jpg");
+        background-size: contain;
+        background-position: center;
+        transform: scale(1.1);
+        height: 100vh;
+        width: 100vw;
+        -webkit-filter: blur(10px);
+        z-index: 1;
+      }
+
+      .backdrop {
+        position: absolute;
+        top: 0;
+        background: rgba(0, 0, 0, 0.5);
+        height: 100vh;
+        width: 100vw;
+        z-index: 2;
+      }
+
+      .img {
+        position: absolute;
+        top: 0;
+        background: url("./ustwo_square.jpg");
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 100vh;
+        width: 100vw;
+        z-index: 3;
+      }
+
+      .emoji {
+        background: rgba(0, 0, 0, 0.2);
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        height: 5000px;
+        transform: translateX(-50%) translateY(-50%);
+        width: 5000px;
+        font-size: 25px;
+        line-height: 1.2;
+        letter-spacing: 5px;
+        z-index: 4;
+        text-align: center;
+      }
+
+      .wrapper {
+        position: absolute;
+        top: -15px;
+        right: 0;
+        bottom: 0;
+        left: -15px;
+        margin: auto;
+        z-index: 999;
+      }
+
+      span {
+        cursor: pointer;
+        -webkit-backface-visibility: hidden;
+        -moz-backface-visibility: hidden;
+        -ms-backface-visibility: hidden;
+        backface-visibility: hidden;
+
+        -webkit-perspective: 1000;
+        -moz-perspective: 1000;
+        -ms-perspective: 1000;
+        perspective: 1000;
+        position: absolute;
+        padding: 15px;
+        /*transition: all 150ms ease-in-out;*/
+      }
+
+      /*span.grow {
+              -webkit-animation: grow 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+              -moz-animation: grow 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+              animation: grow 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }*/
+
+      /*span:hover {
+                -webkit-transform: scale(3);
+                z-index: 9999999;
+            }*/
+
+      @-webkit-keyframes grow {
+        0% {
+          -webkit-transform: scale(1);
+        }
+        30% {
+          -webkit-transform: scale(2.5);
+        }
+        100% {
+          -webkit-transform: scale(1);
+        }
+      }
+
+      @-moz-keyframes grow {
+        0% {
+          -moz-transform: scale(1);
+        }
+        30% {
+          -moz-transform: scale(2.5);
+        }
+        100% {
+          -moz-transform: scale(1);
+        }
+      }
+
+      @keyframes grow {
+        0% {
+          transform: scale(1);
+        }
+        30% {
+          transform: scale(2.5);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg"></div>
+    <div class="backdrop"></div>
+    <div class="img"></div>
+
+    <script>
+      // create checkboxes
+
+      var SIZE = 40;
+      var RES_X = Math.ceil(document.body.clientWidth / SIZE);
+      var RES_Y = Math.ceil(document.body.clientHeight / SIZE);
+
+      // super laggy on mobile devices so ease up the res
+      // if (/iphone|ipad|android/ig.test(navigator.userAgent)) {
+      //   RES_X = 10;
+      //   RES_Y = 10;
+      //   SIZE = 25;
+      // }
+      var entities = [];
+      var wrapper = document.createElement("div");
+      wrapper.className = "wrapper";
+      wrapper.style.fontSize = SIZE * 0.75 + "px";
+      wrapper.style.width = RES_X * SIZE + "px";
+      wrapper.style.height = RES_Y * SIZE + "px";
+      document.body.appendChild(wrapper);
+      for (var x = 0; x < RES_X; x++) {
+        for (var y = 0; y < RES_Y; y++) {
+          var el = document.createElement("span");
+          el.innerHTML = "🌈";
+          // el.style.transitionProperty = 'all';
+          el.style.opacity = 0.2;
+          wrapper.appendChild(el);
+          var entity = {
+            element: el,
+            x: x * SIZE,
+            y: y * SIZE,
+          };
+          el.style.left = entity.x + "px";
+          el.style.top = entity.y + "px";
+          el.addEventListener("click", this.toggle.bind(this, entity, true));
+          var newIndex = entities.push(entity);
+          entity.element.index = newIndex - 1;
+        }
+      }
+
+      function toggle(targetEntity, shouldClear) {
+        if (shouldClear) {
+          clearInterval(window.lolinterval);
+        }
+        var checked = targetEntity.element.checked;
+        entities.forEach(function (entity) {
+          var dx = targetEntity.x - entity.x;
+          var dy = targetEntity.y - entity.y;
+          var distance = Math.sqrt(dx * dx + dy * dy);
+          setTimeout(function () {
+            requestAnimationFrame(function () {
+              if (entity.element.style.opacity == 0.2) {
+                entity.element.style.opacity = 1;
+              } else {
+                entity.element.style.opacity = 0.2;
+              }
+              // re-run the animation, reading offsetWidth forces reflow
+              entity.element.className = "";
+              entity.element.offsetWidth;
+              entity.element.className = "grow";
+            });
+          }, Math.round(distance * 1.8));
+        });
+      }
+
+      var midIndex = Math.floor(entities.length / 2);
+      try {
+        var midElement = document.elementFromPoint(
+          document.body.clientWidth / 2,
+          document.body.clientHeight / 2
+        );
+        if (midElement.index) {
+          midIndex = midElement.index;
+        }
+      } catch (e) {
+        midIndex = Math.floor(entities.length / 2);
+      }
+
+      // setTimeout(function() {
+      //     window.lolinterval = setInterval(function() {
+      //         toggle(entities[midIndex]);
+      //     }, 2000)
+      // }, 1500);
+    </script>
+  </body>
+</html>
